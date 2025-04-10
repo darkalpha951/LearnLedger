@@ -1,19 +1,10 @@
 import React, { useState, useMemo, useEffect } from "react";
-import {
-  BookOpen,
-  Search,
-  ChevronDown,
-  Wallet2,
-  BarChart3,
-  BookMarked,
-  Award,
-  X,
-  Clock,
-} from "lucide-react";
+import { BookOpen, Search, ChevronDown, Wallet2, BarChart3, BookMarked, Award, X, Clock } from 'lucide-react';
 
 const MOCK_USER = {
   id: "user123",
   eduBalance: 900,
+  stakedEdu: 0, // Starting with 0 staked
   vedPoints: 50,
   accessiblePapers: ["paper3"],
 };
@@ -24,8 +15,7 @@ const MOCK_PAPERS = [
     title: "Quantum Computing",
     requiredStake: 200,
     link: "/papers/quantum-computing.pdf",
-    description:
-      "Exploring the fundamentals of quantum computing and its applications",
+    description: "Exploring the fundamentals of quantum computing and its applications",
   },
   {
     id: "paper2",
@@ -55,23 +45,21 @@ function Dashboard() {
   const [readingInterval, setReadingInterval] = useState(null);
   const [stakeAmount, setStakeAmount] = useState("");
 
+  // Load reading times from localStorage on component mount
   useEffect(() => {
-    const savedTimes = JSON.parse(
-      localStorage.getItem("paperReadingTimes") || "{}"
-    );
+    const savedTimes = JSON.parse(localStorage.getItem('paperReadingTimes') || '{}');
     setReadingTime(savedTimes[selectedPaper?.id] || 0);
   }, [selectedPaper]);
 
+  // Start/stop timer when paper is opened/closed
   useEffect(() => {
     if (selectedPaper) {
       const interval = setInterval(() => {
-        setReadingTime((prev) => {
+        setReadingTime(prev => {
           const newTime = prev + 1;
-          const savedTimes = JSON.parse(
-            localStorage.getItem("paperReadingTimes") || "{}"
-          );
+          const savedTimes = JSON.parse(localStorage.getItem('paperReadingTimes') || '{}');
           savedTimes[selectedPaper.id] = newTime;
-          localStorage.setItem("paperReadingTimes", JSON.stringify(savedTimes));
+          localStorage.setItem('paperReadingTimes', JSON.stringify(savedTimes));
           return newTime;
         });
       }, 1000);
@@ -94,26 +82,24 @@ function Dashboard() {
     if (minutes > 0) parts.push(`${minutes}m`);
     parts.push(`${remainingSeconds}s`);
 
-    return parts.join(" ");
+    return parts.join(' ');
   };
 
   const filteredPapers = useMemo(() => {
-    return papers
-      .filter((paper) => {
-        const searchLower = searchQuery.toLowerCase();
-        return (
-          paper.title.toLowerCase().includes(searchLower) ||
-          paper.description.toLowerCase().includes(searchLower)
-        );
-      })
-      .sort((a, b) => {
-        if (sortBy === "newest") {
-          return -1;
-        } else if (sortBy === "stake") {
-          return b.requiredStake - a.requiredStake;
-        }
-        return a.title.localeCompare(b.title);
-      });
+    return papers.filter(paper => {
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        paper.title.toLowerCase().includes(searchLower) ||
+        paper.description.toLowerCase().includes(searchLower)
+      );
+    }).sort((a, b) => {
+      if (sortBy === "newest") {
+        return -1;
+      } else if (sortBy === "stake") {
+        return b.requiredStake - a.requiredStake;
+      }
+      return a.title.localeCompare(b.title);
+    });
   }, [papers, searchQuery, sortBy]);
 
   const handleStake = () => {
@@ -128,7 +114,7 @@ function Dashboard() {
       return;
     }
 
-    setUser((prev) => ({
+    setUser(prev => ({
       ...prev,
       eduBalance: prev.eduBalance - amount,
       stakedEdu: prev.stakedEdu + amount,
@@ -192,14 +178,10 @@ function Dashboard() {
           <div className="bg-white rounded-2xl w-full max-w-6xl h-[90vh] flex flex-col relative">
             <div className="flex items-center justify-between p-4 border-b">
               <div className="flex items-center space-x-4">
-                <h3 className="text-lg font-bold text-gray-900">
-                  {selectedPaper.title}
-                </h3>
+                <h3 className="text-lg font-bold text-gray-900">{selectedPaper.title}</h3>
                 <div className="flex items-center space-x-2 text-gray-500">
                   <Clock className="w-4 h-4" />
-                  <span className="text-sm">
-                    Reading time: {formatTime(readingTime)}
-                  </span>
+                  <span className="text-sm">Reading time: {formatTime(readingTime)}</span>
                 </div>
               </div>
               <button
@@ -226,11 +208,9 @@ function Dashboard() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <BookOpen className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-blue-600">
-                LearnLedger
-              </span>
+              <span className="ml-2 text-xl font-bold text-blue-600">OpenResearch</span>
             </div>
-
+            
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-2">
@@ -258,7 +238,7 @@ function Dashboard() {
                   {user.eduBalance} EDU Balance
                 </span>
               </div>
-
+              
               {walletAddress ? (
                 <span className="px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-sm font-medium">
                   {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
@@ -291,7 +271,7 @@ function Dashboard() {
             />
           </div>
           <div className="relative">
-            <select
+            <select 
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="appearance-none bg-white border border-gray-200 rounded-xl px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -310,25 +290,19 @@ function Dashboard() {
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center space-x-2 mb-6">
               <BookMarked className="w-6 h-6 text-blue-600" />
-              <h2 className="text-xl font-bold text-gray-900">
-                Featured Papers
-              </h2>
+              <h2 className="text-xl font-bold text-gray-900">Featured Papers</h2>
             </div>
-
+            
             {filteredPapers.length === 0 ? (
               <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm text-center">
-                <p className="text-gray-500">
-                  No papers found matching your search criteria
-                </p>
+                <p className="text-gray-500">No papers found matching your search criteria</p>
               </div>
             ) : (
               filteredPapers.map((paper) => {
                 const hasAccess = canAccessPaper(paper.requiredStake);
-                const savedTimes = JSON.parse(
-                  localStorage.getItem("paperReadingTimes") || "{}"
-                );
+                const savedTimes = JSON.parse(localStorage.getItem('paperReadingTimes') || '{}');
                 const paperReadTime = savedTimes[paper.id] || 0;
-
+                
                 return (
                   <div
                     key={paper.id}
@@ -336,24 +310,18 @@ function Dashboard() {
                   >
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">
-                          {paper.title}
-                        </h3>
-                        <p className="text-gray-600 text-sm">
-                          {paper.description}
-                        </p>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">{paper.title}</h3>
+                        <p className="text-gray-600 text-sm">{paper.description}</p>
                       </div>
                       {hasAccess ? (
-                        <span className="px-3 py-1 bg-green-50 text-green-600 rounded-full text-sm">
-                          Accessible
-                        </span>
+                        <span className="px-3 py-1 bg-green-50 text-green-600 rounded-full text-sm">Accessible</span>
                       ) : (
                         <span className="px-3 py-1 bg-yellow-50 text-yellow-600 rounded-full text-sm">
                           {paper.requiredStake} EDU Required
                         </span>
                       )}
                     </div>
-
+                    
                     <div className="flex justify-between items-center">
                       {hasAccess ? (
                         <button
@@ -367,9 +335,7 @@ function Dashboard() {
                           Stake at least {paper.requiredStake} EDU to access
                         </p>
                       )}
-                      <span className="text-sm text-gray-500">
-                        On-chain Published
-                      </span>
+                      <span className="text-sm text-gray-500">On-chain Published</span>
                     </div>
                   </div>
                 );
