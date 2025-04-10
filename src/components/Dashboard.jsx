@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { BookOpen, Search, ChevronDown, Wallet2, BarChart3, BookMarked, Award, X, Clock, ThumbsUp, BarChart2 } from 'lucide-react';
+import { BookOpen, Search, ChevronDown, Wallet2, BarChart3, BookMarked, Award, X, Clock, ThumbsUp, Calendar } from 'lucide-react';
 
 const MOCK_USER = {
   id: "user123",
@@ -7,6 +7,7 @@ const MOCK_USER = {
   stakedEdu: 0, // Starting with 0 staked
   vedPoints: 50,
   accessiblePapers: ["paper3"],
+  votesUsed: 0, // Track votes used in current voting round
 };
 
 const MOCK_PAPERS = [
@@ -44,6 +45,15 @@ const RESEARCH_SECTORS = [
   { id: "openscience", name: "Open Science", votes: 6 }
 ];
 
+// Mock voting round data
+const CURRENT_VOTING_ROUND = {
+  id: "Q2-2025",
+  name: "Q2 2025",
+  startDate: "April 1, 2025",
+  endDate: "June 30, 2025",
+  daysRemaining: 81,
+};
+
 function Dashboard() {
   const [user, setUser] = useState(MOCK_USER);
   const [papers] = useState(MOCK_PAPERS);
@@ -59,6 +69,11 @@ function Dashboard() {
   const [voteAmount, setVoteAmount] = useState(1);
   const [showVotingModal, setShowVotingModal] = useState(false);
   const [selectedSector, setSelectedSector] = useState(null);
+  const [votingRound] = useState(CURRENT_VOTING_ROUND);
+
+  // Maximum votes allowed per user per voting round
+  const MAX_VOTES_PER_USER = 50;
+  const remainingVotes = MAX_VOTES_PER_USER - user.votesUsed;
 
   // Load reading times from localStorage on component mount
   useEffect(() => {
@@ -190,6 +205,12 @@ function Dashboard() {
       alert("⚠️ You need VED tokens to vote for research sectors");
       return;
     }
+    
+    if (user.votesUsed >= MAX_VOTES_PER_USER) {
+      alert(`⚠️ You've reached the maximum voting limit of ${MAX_VOTES_PER_USER} VED for this voting round`);
+      return;
+    }
+    
     setSelectedSector(sector);
     setShowVotingModal(true);
   };
@@ -205,6 +226,12 @@ function Dashboard() {
       alert("⚠️ Insufficient VED balance");
       return;
     }
+    
+    // Check if vote would exceed the maximum allowed
+    if (user.votesUsed + amount > MAX_VOTES_PER_USER) {
+      alert(`⚠️ This vote would exceed your limit of ${MAX_VOTES_PER_USER} VED per voting round. You can vote with up to ${remainingVotes} VED.`);
+      return;
+    }
 
     // Update sector votes
     setSectors(prev => prev.map(sector => 
@@ -213,10 +240,11 @@ function Dashboard() {
         : sector
     ));
 
-    // Deduct VED from user
+    // Deduct VED from user and track votes used
     setUser(prev => ({
       ...prev,
       vedPoints: prev.vedPoints - amount,
+      votesUsed: prev.votesUsed + amount
     }));
 
     setShowVotingModal(false);
@@ -286,7 +314,14 @@ function Dashboard() {
               </div>
             </div>
             
-            <div className="mb-6">
+            <div className="mb-4">
+              <div className="bg-purple-50 p-3 rounded-lg mb-3">
+                <div className="flex justify-between items-center text-sm text-purple-700">
+                  <span>Voting limit per round: {MAX_VOTES_PER_USER} VED</span>
+                  <span>Remaining: {remainingVotes} VED</span>
+                </div>
+              </div>
+              
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 How many VED tokens would you like to use?
               </label>
@@ -294,10 +329,10 @@ function Dashboard() {
                 <input
                   type="number"
                   value={voteAmount}
-                  onChange={(e) => setVoteAmount(Math.max(1, Math.min(user.vedPoints, parseInt(e.target.value) || 0)))}
+                  onChange={(e) => setVoteAmount(Math.max(1, Math.min(remainingVotes, Math.min(user.vedPoints, parseInt(e.target.value) || 0))))}
                   className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   min="1"
-                  max={user.vedPoints}
+                  max={Math.min(remainingVotes, user.vedPoints)}
                 />
                 <span className="text-gray-500">/ {user.vedPoints} VED</span>
               </div>
@@ -491,7 +526,7 @@ function Dashboard() {
                   </div>
                 </div>
 
-                {user.vedPoints > 0 && (
+                {/* {user.vedPoints > 0 && (
                   <div className="pt-4">
                     <button
                       onClick={distributeRewards}
@@ -501,7 +536,7 @@ function Dashboard() {
                       Distribute VED Rewards
                     </button>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           </div>
@@ -515,6 +550,29 @@ function Dashboard() {
           </div>
           
           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            {/* Voting Round Information */}
+            <div className="mb-6 bg-purple-50 rounded-xl p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex space-x-3">
+                  <Calendar className="w-5 h-5 text-purple-600 mt-0.5" />
+                  <div>
+                    <h3 className="font-medium text-purple-900">Current Voting Round: {votingRound.name}</h3>
+                    <p className="text-sm text-purple-700 mt-1">Voting duration: 3 months ({votingRound.startDate} - {votingRound.endDate})</p>
+                    <p className="text-sm text-purple-700">4 voting rounds per year. Your votes help determine research priorities.</p>
+                  </div>
+                </div>
+                <div className="bg-purple-100 px-3 py-2 rounded-lg text-center">
+                  <span className="block text-sm font-medium text-purple-800">{votingRound.daysRemaining}</span>
+                  <span className="text-xs text-purple-700">days left</span>
+                </div>
+              </div>
+              
+              <div className="mt-4 flex items-center justify-between border-t border-purple-200 pt-3">
+                <span className="text-sm text-purple-700">Your voting limit: {MAX_VOTES_PER_USER} VED per round</span>
+                <span className="text-sm font-medium text-purple-800">Used: {user.votesUsed}/{MAX_VOTES_PER_USER} VED</span>
+              </div>
+            </div>
+            
             <p className="text-gray-600 mb-6">
               Use your VED tokens to vote for research sectors you'd like to see more papers on. Your votes help shape the future of LearnLedger's content focus.
             </p>
@@ -531,7 +589,12 @@ function Dashboard() {
                         <span className="text-sm text-gray-500">{sector.votes} votes</span>
                         <button
                           onClick={() => handleVoteClick(sector)}
-                          className="px-3 py-1 bg-purple-50 text-purple-600 rounded-lg text-sm font-medium hover:bg-purple-100 transition-colors"
+                          disabled={user.votesUsed >= MAX_VOTES_PER_USER || user.vedPoints <= 0}
+                          className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                            user.votesUsed >= MAX_VOTES_PER_USER || user.vedPoints <= 0 
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
+                              : "bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors"
+                          }`}
                         >
                           Vote
                         </button>
@@ -555,7 +618,9 @@ function Dashboard() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-500">
                 {user.vedPoints > 0 ? (
-                  `You have ${user.vedPoints} VED tokens available for voting`
+                  user.votesUsed >= MAX_VOTES_PER_USER ? 
+                  "You've reached your voting limit for this round. Next round begins in 3 months!" :
+                  `You have ${user.vedPoints} VED tokens available for voting (${remainingVotes} votes remaining of ${MAX_VOTES_PER_USER} limit)`
                 ) : (
                   "You need VED tokens to vote. Stake EDU or read papers to earn more VED!"
                 )}
