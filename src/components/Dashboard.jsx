@@ -227,7 +227,7 @@ function Dashboard() {
             <div className="flex items-center">
               <BookOpen className="h-8 w-8 text-blue-600" />
               <span className="ml-2 text-xl font-bold text-blue-600">
-                OpenResearch
+                LearnLedger
               </span>
             </div>
 
