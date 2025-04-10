@@ -70,6 +70,8 @@ function Dashboard() {
   const [readingTime, setReadingTime] = useState(0);
   const [readingInterval, setReadingInterval] = useState(null);
   const [stakeAmount, setStakeAmount] = useState("");
+  const [unstakeAmount, setUnstakeAmount] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
   const [sectors, setSectors] = useState(RESEARCH_SECTORS);
   const [voteAmount, setVoteAmount] = useState(1);
   const [showVotingModal, setShowVotingModal] = useState(false);
@@ -164,6 +166,49 @@ function Dashboard() {
 
     setStakeAmount("");
     alert(`✅ Successfully staked ${amount} EDU`);
+  };
+
+  const handleUnstake = () => {
+    const amount = Number(unstakeAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("⚠️ Please enter a valid unstake amount");
+      return;
+    }
+
+    if (amount > user.stakedEdu) {
+      alert("⚠️ Insufficient staked EDU balance");
+      return;
+    }
+
+    setUser(prev => ({
+      ...prev,
+      eduBalance: prev.eduBalance + amount,
+      stakedEdu: prev.stakedEdu - amount,
+    }));
+
+    setUnstakeAmount("");
+    alert(`✅ Successfully unstaked ${amount} EDU`);
+  };
+
+  const handleWithdraw = () => {
+    const amount = Number(withdrawAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("⚠️ Please enter a valid withdrawal amount");
+      return;
+    }
+
+    if (amount > user.vedPoints) {
+      alert("⚠️ Insufficient VED balance");
+      return;
+    }
+
+    setUser(prev => ({
+      ...prev,
+      vedPoints: prev.vedPoints - amount,
+    }));
+
+    setWithdrawAmount("");
+    alert(`✅ Successfully withdrew ${amount} VED`);
   };
 
   const checkAccess = () => {
@@ -497,6 +542,7 @@ function Dashboard() {
 
             <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl p-6 border ${darkMode ? 'border-gray-700' : 'border-gray-100'} shadow-sm`}>
               <div className="space-y-6">
+
                 <div>
                   <label className={`block text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} mb-2`}>
                     Amount to Stake
@@ -518,6 +564,58 @@ function Dashboard() {
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                     >
                       Stake EDU
+                    </button>
+                  </div>
+                </div>
+
+                {/* Unstake Section */}
+                <div>
+                  <label className={`block text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} mb-2`}>
+                    Amount to Unstake
+                  </label>
+                  <div className="flex space-x-2">
+                    <input
+                      type="number"
+                      value={unstakeAmount}
+                      onChange={(e) => setUnstakeAmount(e.target.value)}
+                      placeholder="Enter EDU amount"
+                      className={`flex-1 px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        darkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                          : 'border-gray-200'
+                      }`}
+                    />
+                    <button
+                      onClick={handleUnstake}
+                      className={`px-4 py-2 ${darkMode ? 'bg-red-900 hover:bg-red-800' : 'bg-red-600 hover:bg-red-700'} text-white rounded-lg text-sm font-medium transition-colors`}
+                    >
+                      Unstake EDU
+                    </button>
+                  </div>
+                </div>
+
+                {/* Withdraw VED Section */}
+                <div>
+                  <label className={`block text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} mb-2`}>
+                    Amount to Withdraw
+                  </label>
+                  <div className="flex space-x-2">
+                    <input
+                      type="number"
+                      value={withdrawAmount}
+                      onChange={(e) => setWithdrawAmount(e.target.value)}
+                      placeholder="Enter VED amount"
+                      className={`flex-1 px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        darkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                          : 'border-gray-200'
+                      }`}
+                    />
+                    <button
+                      onClick={handleWithdraw}
+                      className={`px-4 py-2 ${darkMode ? 'bg-purple-900 hover:bg-purple-800' : 'bg-purple-600 hover:bg-purple-700'} text-white rounded-lg text-sm font-medium transition-colors`}
+                    >
+                      Withdraw VED
                     </button>
                   </div>
                 </div>
