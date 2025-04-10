@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { BookOpen, Search, ChevronDown, Wallet2, BarChart3, BookMarked, Award, X, Clock } from 'lucide-react';
+import { BookOpen, Search, ChevronDown, Wallet2, BarChart3, BookMarked, Award, X, Clock, ThumbsUp, BarChart2 } from 'lucide-react';
 
 const MOCK_USER = {
   id: "user123",
@@ -16,6 +16,7 @@ const MOCK_PAPERS = [
     requiredStake: 200,
     link: "/papers/quantum-computing.pdf",
     description: "Exploring the fundamentals of quantum computing and its applications",
+    sector: "AI"
   },
   {
     id: "paper2",
@@ -23,6 +24,7 @@ const MOCK_PAPERS = [
     requiredStake: 150,
     link: "/papers/ai-in-medicine.pdf",
     description: "How artificial intelligence is transforming healthcare",
+    sector: "AI"
   },
   {
     id: "paper3",
@@ -30,7 +32,16 @@ const MOCK_PAPERS = [
     requiredStake: 0,
     link: "/papers/open-science.pdf",
     description: "The evolution and impact of open science initiatives",
+    sector: "Open Science"
   },
+];
+
+const RESEARCH_SECTORS = [
+  { id: "ai", name: "Artificial Intelligence", votes: 24 },
+  { id: "blockchain", name: "Blockchain", votes: 16 },
+  { id: "climate", name: "Climate Change & Global Warming", votes: 12 },
+  { id: "nature", name: "Nature & Biodiversity", votes: 8 },
+  { id: "openscience", name: "Open Science", votes: 6 }
 ];
 
 function Dashboard() {
@@ -44,6 +55,10 @@ function Dashboard() {
   const [readingTime, setReadingTime] = useState(0);
   const [readingInterval, setReadingInterval] = useState(null);
   const [stakeAmount, setStakeAmount] = useState("");
+  const [sectors, setSectors] = useState(RESEARCH_SECTORS);
+  const [voteAmount, setVoteAmount] = useState(1);
+  const [showVotingModal, setShowVotingModal] = useState(false);
+  const [selectedSector, setSelectedSector] = useState(null);
 
   // Load reading times from localStorage on component mount
   useEffect(() => {
@@ -170,6 +185,51 @@ function Dashboard() {
     setSelectedPaper(null);
   };
 
+  const handleVoteClick = (sector) => {
+    if (user.vedPoints <= 0) {
+      alert("⚠️ You need VED tokens to vote for research sectors");
+      return;
+    }
+    setSelectedSector(sector);
+    setShowVotingModal(true);
+  };
+
+  const handleCastVote = () => {
+    const amount = Number(voteAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("⚠️ Please enter a valid voting amount");
+      return;
+    }
+
+    if (amount > user.vedPoints) {
+      alert("⚠️ Insufficient VED balance");
+      return;
+    }
+
+    // Update sector votes
+    setSectors(prev => prev.map(sector => 
+      sector.id === selectedSector.id 
+        ? { ...sector, votes: sector.votes + amount } 
+        : sector
+    ));
+
+    // Deduct VED from user
+    setUser(prev => ({
+      ...prev,
+      vedPoints: prev.vedPoints - amount,
+    }));
+
+    setShowVotingModal(false);
+    setVoteAmount(1);
+    alert(`✅ Successfully voted for ${selectedSector.name} sector with ${amount} VED`);
+  };
+
+  // Sort sectors by vote count
+  const sortedSectors = [...sectors].sort((a, b) => b.votes - a.votes);
+
+  // Calculate total votes for percentage calculation
+  const totalVotes = sectors.reduce((sum, sector) => sum + sector.votes, 0);
+
   return (
     <div className="min-h-screen bg-[#fafafa] relative">
       {/* PDF Viewer Modal */}
@@ -197,6 +257,65 @@ function Dashboard() {
                 className="w-full h-full rounded-lg border border-gray-200"
                 title={selectedPaper.title}
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Voting Modal */}
+      {showVotingModal && selectedSector && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Vote for Research Sector</h3>
+              <button
+                onClick={() => setShowVotingModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <div className="mb-6">
+              <h4 className="font-medium text-gray-800 mb-2">You are voting for:</h4>
+              <div className="bg-blue-50 p-3 rounded-lg flex items-center justify-between">
+                <span className="text-blue-700 font-medium">{selectedSector.name}</span>
+                <span className="bg-blue-100 text-blue-700 rounded-full px-3 py-1 text-sm">
+                  {selectedSector.votes} votes
+                </span>
+              </div>
+            </div>
+            
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                How many VED tokens would you like to use?
+              </label>
+              <div className="flex space-x-2 items-center">
+                <input
+                  type="number"
+                  value={voteAmount}
+                  onChange={(e) => setVoteAmount(Math.max(1, Math.min(user.vedPoints, parseInt(e.target.value) || 0)))}
+                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  min="1"
+                  max={user.vedPoints}
+                />
+                <span className="text-gray-500">/ {user.vedPoints} VED</span>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowVotingModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCastVote}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Cast Vote
+              </button>
             </div>
           </div>
         </div>
@@ -372,7 +491,7 @@ function Dashboard() {
                   </div>
                 </div>
 
-                {/* {user.vedPoints > 0 && (
+                {user.vedPoints > 0 && (
                   <div className="pt-4">
                     <button
                       onClick={distributeRewards}
@@ -382,8 +501,65 @@ function Dashboard() {
                       Distribute VED Rewards
                     </button>
                   </div>
-                )} */}
+                )}
               </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Research Sector Voting Section */}
+        <div className="mt-10 pb-8">
+          <div className="flex items-center space-x-2 mb-6">
+            <ThumbsUp className="w-6 h-6 text-purple-600" />
+            <h2 className="text-xl font-bold text-gray-900">Research Sector Voting</h2>
+          </div>
+          
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <p className="text-gray-600 mb-6">
+              Use your VED tokens to vote for research sectors you'd like to see more papers on. Your votes help shape the future of LearnLedger's content focus.
+            </p>
+            
+            <div className="space-y-4">
+              {sortedSectors.map(sector => {
+                const votePercentage = totalVotes > 0 ? (sector.votes / totalVotes) * 100 : 0;
+                
+                return (
+                  <div key={sector.id} className="border border-gray-100 rounded-xl p-4 hover:border-purple-200 transition-colors">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="font-medium text-gray-800">{sector.name}</h3>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-500">{sector.votes} votes</span>
+                        <button
+                          onClick={() => handleVoteClick(sector)}
+                          className="px-3 py-1 bg-purple-50 text-purple-600 rounded-lg text-sm font-medium hover:bg-purple-100 transition-colors"
+                        >
+                          Vote
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="w-full bg-gray-100 rounded-full h-2.5 mb-1">
+                      <div 
+                        className="bg-purple-600 h-2.5 rounded-full" 
+                        style={{ width: `${votePercentage}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-end">
+                      <span className="text-xs text-gray-500">{votePercentage.toFixed(1)}%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-500">
+                {user.vedPoints > 0 ? (
+                  `You have ${user.vedPoints} VED tokens available for voting`
+                ) : (
+                  "You need VED tokens to vote. Stake EDU or read papers to earn more VED!"
+                )}
+              </p>
             </div>
           </div>
         </div>
