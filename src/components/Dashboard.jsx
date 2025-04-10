@@ -359,7 +359,7 @@ function Dashboard() {
         </div>
       )}
 
-      <header className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b`}>
+<header className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -375,34 +375,6 @@ function Dashboard() {
               >
                 {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
-              
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="number"
-                    value={stakeAmount}
-                    onChange={(e) => setStakeAmount(e.target.value)}
-                    placeholder="Amount to stake"
-                    className={`w-32 px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                      darkMode 
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                        : 'border-gray-200'
-                    }`}
-                  />
-                  <button
-                    onClick={handleStake}
-                    className="px-4 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                  >
-                    Stake EDU
-                  </button>
-                </div>
-                <span className={`px-3 py-1.5 ${darkMode ? 'bg-blue-900 text-blue-200' : 'bg-blue-50 text-blue-600'} rounded-full text-sm font-medium`}>
-                  {user.stakedEdu} EDU Staked
-                </span>
-                <span className={`px-3 py-1.5 ${darkMode ? 'bg-purple-900 text-purple-200' : 'bg-purple-50 text-purple-600'} rounded-full text-sm font-medium`}>
-                  {user.vedPoints} VED
-                </span>
-              </div>
               
               {walletAddress ? (
                 <span className={`px-4 py-2 ${darkMode ? 'bg-blue-900 text-blue-200' : 'bg-blue-50 text-blue-600'} rounded-full text-sm font-medium`}>
@@ -519,44 +491,57 @@ function Dashboard() {
 
           <div className="space-y-6">
             <div className="flex items-center space-x-2 mb-6">
-              <BarChart3 className="w-6 h-6 text-blue-600" />
-              <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Statistics</h2>
+              <Wallet2 className="w-6 h-6 text-blue-600" />
+              <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Staking</h2>
             </div>
 
             <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl p-6 border ${darkMode ? 'border-gray-700' : 'border-gray-100'} shadow-sm`}>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
                   <label className={`block text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'} mb-2`}>
-                    Check Paper Access
+                    Amount to Stake
                   </label>
                   <div className="flex space-x-2">
                     <input
-                      value={selectedPaperId}
-                      onChange={(e) => setSelectedPaperId(e.target.value)}
-                      placeholder="Enter paper ID"
-                      className={`flex-1 px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      type="number"
+                      value={stakeAmount}
+                      onChange={(e) => setStakeAmount(e.target.value)}
+                      placeholder="Enter EDU amount"
+                      className={`flex-1 px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                         darkMode 
                           ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                           : 'border-gray-200'
                       }`}
                     />
                     <button
-                      onClick={checkAccess}
-                      className={`px-4 py-2 ${
-                        darkMode 
-                          ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      } rounded-xl transition-colors`}
+                      onClick={handleStake}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                     >
-                      Check
+                      Stake EDU
                     </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className={`p-4 ${darkMode ? 'bg-blue-900 text-blue-200' : 'bg-blue-50 text-blue-600'} rounded-lg`}>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">EDU Staked</span>
+                      <span className="text-lg font-bold">{user.stakedEdu}</span>
+                    </div>
+                  </div>
+                  
+                  <div className={`p-4 ${darkMode ? 'bg-purple-900 text-purple-200' : 'bg-purple-50 text-purple-600'} rounded-lg`}>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">VED Balance</span>
+                      <span className="text-lg font-bold">{user.vedPoints}</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
+
         <div className="mt-10 pb-8">
           <div className="flex items-center space-x-2 mb-6">
             <ThumbsUp className="w-6 h-6 text-purple-600" />
@@ -673,6 +658,9 @@ function Dashboard() {
 
           </div>
         </div>
+
+
+
       </main>
     </div>
   );
