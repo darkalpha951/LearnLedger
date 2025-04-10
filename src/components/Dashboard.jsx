@@ -759,6 +759,67 @@ function Dashboard() {
 
 
 
+        <div
+        className={`max-w-4xl mx-auto my-10 p-6 ${
+            darkMode ? 'text-white' : 'text-black'
+        }`}
+        id="faq"
+        >
+        <div className="space-y-4">
+            <details
+            className={`p-4 border rounded-lg ${
+                darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-white'
+            }`}
+            >
+            <summary className="font-semibold cursor-pointer">
+                What is EDU?
+            </summary>
+            <p className={`mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                EDU is the primary staking token on our platform. Users stake EDU to
+                gain access to premium academic research papers. By staking EDU, you're
+                supporting an ecosystem that democratizes access to knowledge while
+                earning long-term rewards.
+            </p>
+            </details>
+
+            <details
+            className={`p-4 border rounded-lg ${
+                darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-white'
+            }`}
+            >
+            <summary className="font-semibold cursor-pointer">
+                What is VED?
+            </summary>
+            <p className={`mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                VED is the reward token earned by users based on their reading activity
+                and engagement. It cannot be bought or staked directly — it can only be
+                earned. VED is distributed every 6 months proportionally to the points
+                users accumulate by reading and interacting with research content.
+            </p>
+            </details>
+
+            <details
+            className={`p-4 border rounded-lg ${
+                darkMode ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-white'
+            }`}
+            >
+            <summary className="font-semibold cursor-pointer">
+                Why should I stake EDU?
+            </summary>
+            <p className={`mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Staking EDU unlocks access to paid research papers without requiring
+                expensive individual subscriptions. Beyond access, staking makes you
+                eligible to earn VED — a token that reflects your contribution to the
+                academic ecosystem. Plus, stakers support the mission of making
+                knowledge more accessible for everyone.
+            </p>
+            </details>
+        </div>
+        </div>
+
+
+
+
       </main>
     </div>
   );
