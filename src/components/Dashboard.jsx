@@ -372,7 +372,7 @@ function Dashboard() {
                   </div>
                 </div>
 
-                {user.vedPoints > 0 && (
+                {/* {user.vedPoints > 0 && (
                   <div className="pt-4">
                     <button
                       onClick={distributeRewards}
@@ -382,7 +382,7 @@ function Dashboard() {
                       Distribute VED Rewards
                     </button>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           </div>
