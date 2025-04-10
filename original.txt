@@ -1,0 +1,35 @@
+{/* ✅ Show Staked EDU */}
+                <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                    Staked: {user.stakedEdu} EDU
+                </span>
+
+                {/* ✅ Show VED Points */}
+                <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
+                    VED: {user.vedPoints}
+                </span>
+
+                {/* ✅ Auth controls */}
+                {isInitialized ? (
+                    isAuthenticated ? (
+                    <>
+                        <span className="text-xs px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
+                        {authState?.user?.name || "Logged In"}
+                        </span>
+                        <button
+                        onClick={() => ocAuth.logout()}
+                        className="ml-2 px-3 py-1 text-sm bg-red-500 text-white rounded-full"
+                        >
+                        Logout
+                        </button>
+                    </>
+                    ) : (
+                    <a
+                        href="https://login.sandbox.opencampus.xyz/login?client_id=PARTNER6&redirect_uri=http://localhost:3001/redirect"
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-full shadow hover:bg-indigo-700 text-sm"
+                    >
+                        Login with OpenCampus ID
+                    </a>
+                    )
+                ) : (
+                    <span className="text-gray-500 text-sm">Loading auth...</span>
+                )}
